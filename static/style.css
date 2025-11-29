@@ -1,0 +1,45 @@
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.header img {
+  max-width: 300px;
+  height: auto;
+  display: block;
+}
+
+.custom-footer {
+  background-color: #f8f9fa; /* Hafif gri arka plan (daha profesyonel durur) */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05); /* Üst tarafa hafif gölge */
+}
+
+.custom-footer a {
+  text-decoration: none;
+}
+
+.social-icon {
+  font-size: 1.5rem;
+  color: #6c757d;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.social-icon:hover {
+  color: #0d6efd;
+  background-color: rgba(13, 110, 253, 0.1);
+  transform: translateY(-3px);
+}
+
+.footer-left span {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
