@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+  textarea {
+      resize: none;
+      overflow-y: hidden;
+      transition: height 0.2s ease;
+  }
+  .char-badge {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #6c757d;
+  }
+
+  .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 10;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+  }
+  .copy-btn:hover {
+      opacity: 1;
+  }
+  .result-box {
+      position: relative;
+  }
+</style>
+
+<div class="container mt-4">
+
+  <div class="text-center mb-4">
+    <h2>Akademik Metin Özetleyici</h2>
+    <p class="text-muted">Makale ve literatür taramalarınızı yapay zeka ile akıllıca özetleyin.</p>
+  </div>
+
+  <form method="POST" action="/" class="mb-4">
+    <div class="mb-3 position-relative">
+        <label for="inputText" class="form-label fw-bold">Metnini Yapıştır:</label>
+        <textarea
+          id="inputText"
+          name="text"
+          class="form-control shadow-sm"
+          rows="6"
+          placeholder="Buraya metni yapıştırın..."
+          oninput="handleInput(this)"
+        >{{ text }}</textarea>
+
+        <div class="d-flex justify-content-end mt-1">
+            <span class="char-badge">
+                Mevcut Karakter: <span id="currentCount" class="fw-bold text-primary">0</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-3 align-items-center mb-3">
+        <div class="col-md-4">
+            <label for="limitInput" class="col-form-label fw-bold">Hedef Karakter Limiti:</label>
+            <input
+              type="number"
+              id="limitInput"
+              name="limit"
+              class="form-control"
+              placeholder="Örn: 1000"
+              value="{{ limit }}"
+            />
+            <div class="form-text">Boş bırakılırsa otomatik özetlenir.</div>
+        </div>
+        <div class="col-md-8 d-flex align-items-end">
+             <button type="submit" class="btn btn-primary w-100 py-2">
+                <i class="bi bi-magic"></i> Analiz Et ve Özetle
+             </button>
+        </div>
+    </div>
+  </form>
+
+  {% if kelime_sayisi %}
+  <div class="card shadow-sm mb-5 border-0 bg-light">
+      <div class="card-body">
+          <h5 class="card-title text-center text-secondary mb-3">Metin İstatistikleri</h5>
+          <div class="row text-center">
+              <div class="col-md-3 border-end">
+                  <h3 class="h5">{{ kelime_sayisi }}</h3>
+                  <small class="text-muted">Kelime</small>
+              </div>
+              <div class="col-md-3 border-end">
+                  <h3 class="h5">{{ karakter_sayisi }}</h3>
+                  <small class="text-muted">Karakter</small>
+              </div>
+              <div class="col-md-3 border-end">
+                  <h3 class="h5">{{ cumle_sayisi }}</h3>
+                  <small class="text-muted">Cümle</small>
+              </div>
+              <div class="col-md-3">
+                  <h3 class="h5 text-success">
+                    {% if semantic_ozet and karakter_sayisi > 0 %}
+                        %{{ ((1 - (semantic_ozet|length / karakter_sayisi)) * 100) | round | int }}
+                    {% else %}
+                        0
+                    {% endif %}
+                  </h3>
+                  <small class="text-muted">Küçülme Oranı</small>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  {% if kisaltma is not none %}
+  <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="fw-bold text-warning mb-2">Basit Kısaltma (İlk X Karakter):</label>
+        <div class="result-box">
+            <textarea id="simpleOutput" readonly class="form-control bg-white fs-6 auto-grow shadow-sm">{{ kisaltma }}</textarea>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="fw-bold text-success mb-2">
+            <i class="bi bi-robot"></i> Yapay Zeka Özeti (Anlamsal):
+        </label>
+        <div class="result-box">
+            <button onclick="copyText('semanticOutput')" class="btn btn-sm btn-outline-secondary copy-btn" title="Kopyala">
+                <i class="bi bi-clipboard"></i> Kopyala
+            </button>
+            <textarea id="semanticOutput" readonly class="form-control bg-white fs-6 auto-grow shadow-sm border-success" style="border-width: 2px;">{% if semantic_ozet %}{{ semantic_ozet }}{% else %}Özet oluşturulamadı.{% endif %}</textarea>
+        </div>
+      </div>
+  </div>
+  {% endif %}
+
+  {% endif %}
+</div>
+
+<script>
+    function autoResize(el) {
+        el.style.height = 'auto';
+        el.style.height = el.scrollHeight + 'px';
+    }
+
+    function handleInput(el) {
+        document.getElementById('currentCount').innerText = el.value.length;
+        autoResize(el);
+    }
+
+    function copyText(elementId) {
+        var copyText = document.getElementById(elementId);
+
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+
+        navigator.clipboard.writeText(copyText.value).then(function() {
+            let btn = document.querySelector(`button[onclick="copyText('${elementId}')"]`);
+            let originalHTML = btn.innerHTML;
+
+            btn.innerHTML = '<i class="bi bi-check"></i> Kopyalandı!';
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-success');
+
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.add('btn-outline-secondary');
+                btn.classList.remove('btn-success');
+            }, 2000);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const inputText = document.getElementById('inputText');
+        if(inputText && inputText.value.length > 0) {
+            handleInput(inputText);
+        }
+
+        const outputBoxes = document.querySelectorAll('.auto-grow');
+        outputBoxes.forEach(box => {
+            autoResize(box);
+        });
+    });
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+{% endblock %}

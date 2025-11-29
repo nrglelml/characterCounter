@@ -1,0 +1,7 @@
+flask
+gunicorn
+scikit-learn
+nltk
+numpy
+python-dotenv
+huggingface_hub
