@@ -6,6 +6,8 @@ import numpy as np
 import re
 import os
 from huggingface_hub import InferenceClient
+import dotenv
+dotenv.load_dotenv()
 
 # NLTK Kontrolü
 try:
