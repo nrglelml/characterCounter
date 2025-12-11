@@ -1,185 +1,147 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block content %}
 
-{% block content %}
+<div class="text-center mb-5">
+  <h1 class="page-title">Character Counter & Akademik Metin Özetleyici</h1>
+  <p class="page-subtitle">
+    Makale ve literatür taramalarınızı yapay zeka ile akıllıca özetleyin.
+  </p>
+</div>
 
-<style>
-  textarea {
-      resize: none;
-      overflow-y: hidden;
-      transition: height 0.2s ease;
-  }
-  .char-badge {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #6c757d;
-  }
+<form method="POST" action="/" class="mb-4">
+  <div class="row g-4">
 
-  .copy-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 10;
-      opacity: 0.7;
-      transition: opacity 0.2s;
-  }
-  .copy-btn:hover {
-      opacity: 1;
-  }
-  .result-box {
-      position: relative;
-  }
-</style>
+    <div class="col-md-6">
+      <div class="glass-box">
+        <h4 class="mb-3">Metnini Yapıştır:</h4>
 
-<div class="container mt-4">
-
-  <div class="text-center mb-4">
-    <h2>Akademik Metin Özetleyici</h2>
-    <p class="text-muted">Makale ve literatür taramalarınızı yapay zeka ile akıllıca özetleyin.</p>
-  </div>
-
-  <form method="POST" action="/" class="mb-4">
-    <div class="mb-3 position-relative">
-        <label for="inputText" class="form-label fw-bold">Metnini Yapıştır:</label>
+        <label class="form-label fw-bold">Metin:</label>
         <textarea
           id="inputText"
           name="text"
-          class="form-control shadow-sm"
-          rows="6"
-          placeholder="Buraya metni yapıştırın..."
+          class="form-control auto-grow"
+          rows="7"
+          placeholder="Metni buraya yapıştırın..."
           oninput="handleInput(this)"
-        >{{ text }}</textarea>
+        >
+{{ text }}</textarea
+        >
 
-        <div class="d-flex justify-content-end mt-1">
-            <span class="char-badge">
-                Mevcut Karakter: <span id="currentCount" class="fw-bold text-primary">0</span>
-            </span>
+        <div class="text-end mt-2">
+          <small
+            >Mevcut Karakter:
+            <strong id="currentCount">{{ karakter_sayisi or 0 }}</strong></small
+          >
         </div>
+      </div>
     </div>
 
-    <div class="row g-3 align-items-center mb-3">
-        <div class="col-md-4">
-            <label for="limitInput" class="col-form-label fw-bold">Hedef Karakter Limiti:</label>
-            <input
-              type="number"
-              id="limitInput"
-              name="limit"
-              class="form-control"
-              placeholder="Örn: 1000"
-              value="{{ limit }}"
-            />
-            <div class="form-text">Boş bırakılırsa otomatik özetlenir.</div>
-        </div>
-        <div class="col-md-8 d-flex align-items-end">
-             <button type="submit" class="btn btn-primary w-100 py-2">
-                <i class="bi bi-magic"></i> Analiz Et ve Özetle
-             </button>
-        </div>
-    </div>
-  </form>
 
-  {% if kelime_sayisi %}
-  <div class="card shadow-sm mb-5 border-0 bg-light">
-      <div class="card-body">
-          <h5 class="card-title text-center text-secondary mb-3">Metin İstatistikleri</h5>
-          <div class="row text-center">
-              <div class="col-md-3 border-end">
-                  <h3 class="h5">{{ kelime_sayisi }}</h3>
-                  <small class="text-muted">Kelime</small>
-              </div>
-              <div class="col-md-3 border-end">
-                  <h3 class="h5">{{ karakter_sayisi }}</h3>
-                  <small class="text-muted">Karakter</small>
-              </div>
-              <div class="col-md-3 border-end">
-                  <h3 class="h5">{{ cumle_sayisi }}</h3>
-                  <small class="text-muted">Cümle</small>
-              </div>
-              <div class="col-md-3">
-                  <h3 class="h5 text-success">
-                    {% if semantic_ozet and karakter_sayisi > 0 %}
-                        %{{ ((1 - (semantic_ozet|length / karakter_sayisi)) * 100) | round | int }}
-                    {% else %}
-                        0
-                    {% endif %}
-                  </h3>
-                  <small class="text-muted">Küçülme Oranı</small>
-              </div>
+    <div class="col-md-6">
+      <div class="glass-box">
+        <h4 class="mb-3">Metin İstatistikleri</h4>
+
+        {% if kelime_sayisi %}
+        <div class="stats-grid mb-4">
+          <div class="stats-item">
+            <h3>{{ kelime_sayisi }}</h3>
+            <small>Kelime</small>
           </div>
-      </div>
-  </div>
-
-  {% if kisaltma is not none %}
-  <div class="row">
-      <div class="col-md-6 mb-3">
-        <label class="fw-bold text-warning mb-2">Basit Kısaltma (İlk X Karakter):</label>
-        <div class="result-box">
-            <textarea id="simpleOutput" readonly class="form-control bg-white fs-6 auto-grow shadow-sm">{{ kisaltma }}</textarea>
+          <div class="stats-item">
+            <h3>{{ karakter_sayisi }}</h3>
+            <small>Karakter</small>
+          </div>
+          <div class="stats-item">
+            <h3>{{ cumle_sayisi }}</h3>
+            <small>Cümle</small>
+          </div>
+          <div class="stats-item">
+            <h3 class="text-success">
+              {% if semantic_ozet and karakter_sayisi > 0 %} %{{ ((1 -
+              (semantic_ozet|length / karakter_sayisi)) * 100) | round | int }}
+              {% else %} 0 {% endif %}
+            </h3>
+            <small>Küçülme Oranı</small>
+          </div>
         </div>
-      </div>
-
-      <div class="col-md-6 mb-3">
-        <label class="fw-bold text-success mb-2">
-            <i class="bi bi-robot"></i> Yapay Zeka Özeti (Anlamsal):
-        </label>
-        <div class="result-box">
-            <button onclick="copyText('semanticOutput')" class="btn btn-sm btn-outline-secondary copy-btn" title="Kopyala">
-                <i class="bi bi-clipboard"></i> Kopyala
-            </button>
-            <textarea id="semanticOutput" readonly class="form-control bg-white fs-6 auto-grow shadow-sm border-success" style="border-width: 2px;">{% if semantic_ozet %}{{ semantic_ozet }}{% else %}Özet oluşturulamadı.{% endif %}</textarea>
+        <div class="mt-4">
+          <label for="limitInput" class="fw-bold">Hedef Karakter Limiti:</label>
+          <input
+            type="number"
+            id="limitInput"
+            name="limit"
+            class="form-control"
+            placeholder="örn: 1000"
+            value="{{ limit }}"
+          />
+          <small class="text-muted">Boş bırakılırsa otomatik özetlenir.</small>
         </div>
-      </div>
-  </div>
-  {% endif %}
 
-  {% endif %}
-</div>
+        <button type="submit" class="btn btn-primary w-100 mt-3 py-2">
+          <i class="bi bi-magic"></i> Analiz Et ve Özetle
+        </button>
+        {% endif %} {% if kisaltma is not none or semantic_ozet %}
+        <h5 class="mb-2">Çıktı</h5>
+
+        <div class="output-box">
+          <label class="fw-bold text-success mb-2 d-flex align-items-center">
+            <i class="bi bi-robot me-2"></i> Yapay Zeka Özeti
+          </label>
+
+          <textarea
+            readonly
+            class="form-control auto-grow mb-4 border-success"
+            style="
+              border-width: 2px;
+              line-height: 1.6;
+              padding: 14px;
+              font-size: 15px;
+            "
+          >
+{{ semantic_ozet if semantic_ozet else "Özet oluşturulamadı." }}</textarea
+          >
+
+
+          {% if kisaltma %}
+          <label class="fw-bold text-warning mb-2">Basit Kısaltma</label>
+          <textarea
+            readonly
+            class="form-control auto-grow mb-2"
+            style="
+              background: rgba(255, 255, 255, 0.06);
+              border: 1px solid rgba(255, 255, 255, 0.18);
+              line-height: 1.55;
+              padding: 12px;
+              font-size: 14px;
+            "
+          >
+{{ kisaltma }}</textarea
+          >
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</form>
 
 <script>
-    function autoResize(el) {
-        el.style.height = 'auto';
-        el.style.height = el.scrollHeight + 'px';
+  function autoResize(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  function handleInput(el) {
+    document.getElementById("currentCount").innerText = el.value.length;
+    autoResize(el);
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const inputText = document.getElementById("inputText");
+    if (inputText && inputText.value.length > 0) {
+      handleInput(inputText);
     }
-
-    function handleInput(el) {
-        document.getElementById('currentCount').innerText = el.value.length;
-        autoResize(el);
-    }
-
-    function copyText(elementId) {
-        var copyText = document.getElementById(elementId);
-
-        copyText.select();
-        copyText.setSelectionRange(0, 99999);
-
-        navigator.clipboard.writeText(copyText.value).then(function() {
-            let btn = document.querySelector(`button[onclick="copyText('${elementId}')"]`);
-            let originalHTML = btn.innerHTML;
-
-            btn.innerHTML = '<i class="bi bi-check"></i> Kopyalandı!';
-            btn.classList.remove('btn-outline-secondary');
-            btn.classList.add('btn-success');
-
-            setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.classList.add('btn-outline-secondary');
-                btn.classList.remove('btn-success');
-            }, 2000);
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        const inputText = document.getElementById('inputText');
-        if(inputText && inputText.value.length > 0) {
-            handleInput(inputText);
-        }
-
-        const outputBoxes = document.querySelectorAll('.auto-grow');
-        outputBoxes.forEach(box => {
-            autoResize(box);
-        });
-    });
+    document.querySelectorAll(".auto-grow").forEach(autoResize);
+  });
 </script>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 {% endblock %}

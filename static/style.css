@@ -1,45 +1,115 @@
-.header {
-  width: 100%;
+
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+  color: #fff;
+}
+
+
+.app-bg {
+  background: url("./images/bg.png") no-repeat center center fixed;
+  background-size: cover;
+}
+
+
+.main-wrapper {
+  padding: 60px 0;
+}
+
+
+.glass-box {
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  padding: 25px;
+}
+
+
+.page-title {
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+
+#inputText {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+#inputText::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+
+.stats-grid {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px 0;
+  justify-content: space-between;
+  text-align: center;
 }
 
-.header img {
-  max-width: 300px;
-  height: auto;
-  display: block;
+.stats-item h3 {
+  font-size: 28px;
+  margin-bottom: 5px;
 }
 
-.custom-footer {
-  background-color: #f8f9fa; /* Hafif gri arka plan (daha profesyonel durur) */
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05); /* Üst tarafa hafif gölge */
+.stats-item small {
+  opacity: 0.7;
 }
 
-.custom-footer a {
-  text-decoration: none;
+
+.btn-primary {
+  background: linear-gradient(90deg, #3f8cf4, #2dd4ff);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  transition: 0.2s;
 }
 
-.social-icon {
-  font-size: 1.5rem;
-  color: #6c757d;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+.btn-primary:hover {
+  opacity: 0.85;
 }
 
-.social-icon:hover {
-  color: #0d6efd;
-  background-color: rgba(13, 110, 253, 0.1);
-  transform: translateY(-3px);
+
+.output-box {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 15px;
 }
 
-.footer-left span {
-  font-weight: 500;
-  letter-spacing: 0.5px;
+.auto-grow {
+  background: transparent;
+  border: none;
+  color: #fff;
+}
+
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  opacity: 0.7;
+}
+.copy-btn:hover {
+  opacity: 1;
+}
+
+
+@media (max-width: 768px) {
+  .stats-grid {
+    flex-direction: column;
+    gap: 15px;
+  }
 }
