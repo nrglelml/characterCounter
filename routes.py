@@ -28,11 +28,10 @@ def get_embeddings_api(sentences):
         return "TOKEN_ERROR"
 
     try:
-        # URL ile uğraşmak yerine resmi kütüphaneyi kullanıyoruz.
-        # Bu fonksiyon modele "Ben sadece Feature Extraction istiyorum" der.
+
         response = client.feature_extraction(sentences, model=MODEL_ID)
 
-        # Gelen veri bazen tensor, bazen liste olur; numpy dizisine çevirelim.
+
         return np.array(response)
 
     except Exception as e:
@@ -40,9 +39,7 @@ def get_embeddings_api(sentences):
         return None
 
 def clean_and_merge_text(text):
-    """
-    Metni PDF kırıklarından kurtarır ve tek bir blok haline getirir.
-    """
+
     text = re.sub(r'-\s*\n\s*', '', text)
     text = text.replace('\n', ' ')
     text = re.sub(r'\s+', ' ', text)
@@ -85,19 +82,19 @@ def smart_summary_literature(text, target_limit):
 
     if len(sentences) < 2: return text
 
-    # --- API ÇAĞRISI BURADA ---
+
     try:
-        # Modeli yerel çalıştırmak yerine API'den istiyoruz
+
         embeddings = get_embeddings_api(sentences)
 
-        # Hata Kontrolü: API bazen liste yerine hata mesajı dönebilir
+
         if embeddings.ndim != 2:
             return "API Hatası: Model şu an yükleniyor olabilir, lütfen 10 saniye sonra tekrar deneyin."
 
     except Exception as e:
         return f"Bağlantı Hatası: {str(e)}"
 
-    # --- KÜMELEME MANTIĞI (Aynı kalıyor) ---
+
     logical_groups = group_sentences_logically(sentences)
     sentence_map = {}
     flat_sentences = []
@@ -113,9 +110,9 @@ def smart_summary_literature(text, target_limit):
             }
             global_idx += 1
 
-    # Eğer API ile gelen embedding sayısı ile cümle sayısı uyuşmazsa (nadir durum)
+
     if len(embeddings) != len(flat_sentences):
-        # Yeniden düz liste için embedding alalım (garanti olsun)
+
         embeddings = get_embeddings_api(flat_sentences)
 
     avg_sent_len = sum(len(s) for s in flat_sentences) / len(flat_sentences)

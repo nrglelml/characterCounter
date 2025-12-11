@@ -1,147 +1,241 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+textarea {
+    resize: none;
+    overflow-y: hidden;
+    transition: height 0.2s ease;
+}
+
+
+.glass-box, .summary-card {
+    background: rgba(255,255,255,0.10);
+    backdrop-filter: blur(12px);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 22px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    color: #fff;
+}
+
+
+textarea.form-control {
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    color: #fff !important;
+    padding: 14px !important;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.label-title {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+
+.btn-analiz {
+    background: linear-gradient(90deg, #3f8cf4, #2dd4ff);
+    border: none;
+    color: white;
+    font-size: 18px;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: 0.25s ease-in-out;
+    width: 100%;
+    box-shadow: 0 0 12px rgba(0,150,255,0.4);
+    text-align: center;
+}
+
+.btn-analiz:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 18px rgba(0,180,255,0.6);
+    opacity: 0.92;
+}
+
+.btn-analiz:active {
+    transform: scale(0.97);
+}
+
+
+.stats-item h3 {
+    font-size: 28px;
+    margin-bottom: 4px;
+}
+
+.stats-item small {
+    opacity: 0.75;
+}
+
+
+.copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    opacity: 0.7;
+}
+.copy-btn:hover {
+    opacity: 1;
+}
+</style>
 
 <div class="text-center mb-5">
   <h1 class="page-title">Character Counter & Akademik Metin Özetleyici</h1>
-  <p class="page-subtitle">
-    Makale ve literatür taramalarınızı yapay zeka ile akıllıca özetleyin.
-  </p>
+  <p class="page-subtitle">Makale ve literatür taramalarınızı yapay zeka ile akıllıca özetleyin.</p>
 </div>
 
-<form method="POST" action="/" class="mb-4">
-  <div class="row g-4">
 
-    <div class="col-md-6">
-      <div class="glass-box">
-        <h4 class="mb-3">Metnini Yapıştır:</h4>
+<form method="POST" action="/" class="mb-5">
 
-        <label class="form-label fw-bold">Metin:</label>
+
+    <div class="glass-box mb-4">
+        <label class="form-label fw-bold">Metnini Yapıştır:</label>
+
         <textarea
-          id="inputText"
-          name="text"
-          class="form-control auto-grow"
-          rows="7"
-          placeholder="Metni buraya yapıştırın..."
-          oninput="handleInput(this)"
-        >
-{{ text }}</textarea
-        >
+            id="inputText"
+            name="text"
+            class="form-control auto-grow"
+            rows="6"
+            placeholder="Buraya metni yapıştırın..."
+            oninput="handleInput(this)"
+        >{{ text }}</textarea>
 
         <div class="text-end mt-2">
-          <small
-            >Mevcut Karakter:
-            <strong id="currentCount">{{ karakter_sayisi or 0 }}</strong></small
-          >
+          <small>Mevcut Karakter: <strong id="currentCount">{{ karakter_sayisi or 0 }}</strong></small>
         </div>
-      </div>
     </div>
+
+
+
+    <div class="row g-3 align-items-center">
+        <div class="col-md-4">
+            <label class="fw-bold">Hedef Karakter Limiti:</label>
+            <input type="number" id="limitInput" name="limit" class="form-control" placeholder="Örn: 1000" value="{{ limit }}">
+            <small class="text-muted">Boş bırakılırsa otomatik özetlenir.</small>
+        </div>
+
+        <div class="col-md-8 d-flex align-items-center">
+            <button type="submit" class="btn-analiz">
+                ✨ Analiz Et ve Özetle
+            </button>
+        </div>
+    </div>
+
+</form>
+
+
+{% if kelime_sayisi %}
+
+
+<div class="glass-box mb-5">
+    <h4 class="mb-3 text-center">Metin İstatistikleri</h4>
+
+    <div class="row text-center">
+        <div class="col-md-3 border-end">
+            <h3>{{ kelime_sayisi }}</h3>
+            <small>Kelime</small>
+        </div>
+        <div class="col-md-3 border-end">
+            <h3>{{ karakter_sayisi }}</h3>
+            <small>Karakter</small>
+        </div>
+        <div class="col-md-3 border-end">
+            <h3>{{ cumle_sayisi }}</h3>
+            <small>Cümle</small>
+        </div>
+        <div class="col-md-3">
+            <h3 class="text-success">
+                {% if semantic_ozet and karakter_sayisi > 0 %}
+                    %{{ ((1 - (semantic_ozet|length / karakter_sayisi)) * 100) | round | int }}
+                {% else %}0{% endif %}
+            </h3>
+            <small>Küçülme Oranı</small>
+        </div>
+    </div>
+</div>
+
+
+<div class="row g-4">
 
 
     <div class="col-md-6">
-      <div class="glass-box">
-        <h4 class="mb-3">Metin İstatistikleri</h4>
+        <div class="summary-card position-relative">
+            <label class="label-title text-success mb-2">
+                <i class="bi bi-robot me-1"></i> Yapay Zeka Özeti (Anlamsal)
+            </label>
 
-        {% if kelime_sayisi %}
-        <div class="stats-grid mb-4">
-          <div class="stats-item">
-            <h3>{{ kelime_sayisi }}</h3>
-            <small>Kelime</small>
-          </div>
-          <div class="stats-item">
-            <h3>{{ karakter_sayisi }}</h3>
-            <small>Karakter</small>
-          </div>
-          <div class="stats-item">
-            <h3>{{ cumle_sayisi }}</h3>
-            <small>Cümle</small>
-          </div>
-          <div class="stats-item">
-            <h3 class="text-success">
-              {% if semantic_ozet and karakter_sayisi > 0 %} %{{ ((1 -
-              (semantic_ozet|length / karakter_sayisi)) * 100) | round | int }}
-              {% else %} 0 {% endif %}
-            </h3>
-            <small>Küçülme Oranı</small>
-          </div>
+            <button onclick="copyText('semanticOutput')" class="btn btn-sm btn-outline-light copy-btn">
+                📋 Kopyala
+            </button>
+
+            <textarea id="semanticOutput" readonly class="form-control auto-grow">
+{{ semantic_ozet if semantic_ozet else "Özet oluşturulamadı." }}</textarea>
         </div>
-        <div class="mt-4">
-          <label for="limitInput" class="fw-bold">Hedef Karakter Limiti:</label>
-          <input
-            type="number"
-            id="limitInput"
-            name="limit"
-            class="form-control"
-            placeholder="örn: 1000"
-            value="{{ limit }}"
-          />
-          <small class="text-muted">Boş bırakılırsa otomatik özetlenir.</small>
-        </div>
-
-        <button type="submit" class="btn btn-primary w-100 mt-3 py-2">
-          <i class="bi bi-magic"></i> Analiz Et ve Özetle
-        </button>
-        {% endif %} {% if kisaltma is not none or semantic_ozet %}
-        <h5 class="mb-2">Çıktı</h5>
-
-        <div class="output-box">
-          <label class="fw-bold text-success mb-2 d-flex align-items-center">
-            <i class="bi bi-robot me-2"></i> Yapay Zeka Özeti
-          </label>
-
-          <textarea
-            readonly
-            class="form-control auto-grow mb-4 border-success"
-            style="
-              border-width: 2px;
-              line-height: 1.6;
-              padding: 14px;
-              font-size: 15px;
-            "
-          >
-{{ semantic_ozet if semantic_ozet else "Özet oluşturulamadı." }}</textarea
-          >
-
-
-          {% if kisaltma %}
-          <label class="fw-bold text-warning mb-2">Basit Kısaltma</label>
-          <textarea
-            readonly
-            class="form-control auto-grow mb-2"
-            style="
-              background: rgba(255, 255, 255, 0.06);
-              border: 1px solid rgba(255, 255, 255, 0.18);
-              line-height: 1.55;
-              padding: 12px;
-              font-size: 14px;
-            "
-          >
-{{ kisaltma }}</textarea
-          >
-          {% endif %}
-        </div>
-        {% endif %}
-      </div>
     </div>
-  </div>
-</form>
+
+
+    {% if kisaltma %}
+    <div class="col-md-6">
+        <div class="summary-card">
+            <label class="label-title text-warning">Basit Kısaltma (İlk X Karakter)</label>
+
+            <textarea readonly class="form-control auto-grow">
+{{ kisaltma }}</textarea>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endif %}
+
 
 <script>
-  function autoResize(el) {
+
+document.addEventListener("submit", function () {
+    localStorage.setItem("scrollPos", window.scrollY);
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const pos = localStorage.getItem("scrollPos");
+    if (pos !== null) {
+
+        setTimeout(() => {
+            window.scrollTo({ top: parseInt(pos), behavior: "instant" });
+        }, 50);
+
+        localStorage.removeItem("scrollPos");
+    }
+
+    document.querySelectorAll(".auto-grow").forEach(autoResize);
+});
+
+
+function autoResize(el) {
     el.style.height = "auto";
     el.style.height = el.scrollHeight + "px";
-  }
+}
 
-  function handleInput(el) {
+
+function handleInput(el) {
     document.getElementById("currentCount").innerText = el.value.length;
     autoResize(el);
-  }
+}
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const inputText = document.getElementById("inputText");
-    if (inputText && inputText.value.length > 0) {
-      handleInput(inputText);
-    }
-    document.querySelectorAll(".auto-grow").forEach(autoResize);
-  });
+
+function copyText(id) {
+    const el = document.getElementById(id);
+    el.select();
+    el.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(el.value);
+}
 </script>
+
+
+
 
 {% endblock %}
